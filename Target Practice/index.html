@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shooting Target Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-container" id="game">
+    <div id="target" class="target" tabindex="0"></div>
+    <div id="gameOverText" class="game-over">🎯 Game Over!<br>Final Score: <span id="finalScore">0</span></div>
+  </div>
+
+  <div class="sidebar">
+    <div>
+      <h2>🎯 Target Practice</h2>
+      <h4>Select Difficulty</h4>
+      <div class="buttons">
+        <button id="easyBtn" onclick="selectDifficulty('easy')">Easy</button>
+        <button id="mediumBtn" onclick="selectDifficulty('medium')">Medium</button>
+        <button id="hardBtn" onclick="selectDifficulty('hard')">Hard</button>
+      </div>
+      <h4>Select Duration</h4>
+      <div class="timers">
+        <button id="time10" onclick="selectDuration(10)">10s</button>
+        <button id="time15" onclick="selectDuration(15)">15s</button>
+        <button id="time30" onclick="selectDuration(30)">30s</button>
+      </div>
+      <button id="startBtn" class="start-btn" onclick="startGame()" disabled>START</button>
+    </div>
+    <div class="display_score">
+      <h3>Score: <span id="score">0</span></h3>
+      <h4 id="timer">Time: 0</h4>
+    </div>
+    <button onclick="restart()">RESTART</button>
+  </div>
+
+  <audio id="gunSound" src="shooting.mp3" preload="auto"></audio>
+  <script src="script.js"></script>
+</body>
+</html>
