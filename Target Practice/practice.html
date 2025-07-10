@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Shooting Target Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      cursor: crosshair;
+      color: #fff;
+      background-color: #000;
+    }
+
+    .game-container {
+      flex: 1;
+      position: relative;
+      background: url('shooting-range.jpg') no-repeat center center;
+      background-size: cover;
+      overflow: hidden;
+    }
+
+    .target {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center,
+          #ff0000 15%,
+          white 16% 35%,
+          black 36% 50%,
+          white 51% 70%,
+          black 71%);
+      border: 2px solid #fff;
+      position: absolute;
+      transition: left 0.5s ease, top 0.5s ease;
+      cursor: crosshair;
+      box-shadow: 0 0 10px 3px rgba(255, 0, 0, 0.5);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .sidebar {
+      width: 320px;
+      background-color: #111;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: -4px 0 15px rgba(0, 0, 0, 0.8);
+    }
+
+    .buttons,
+    .timers {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0.4em 0;
+      text-align: center;
+    }
+
+    button {
+      border-radius: 20px;
+      padding: 10px 15px;
+      font-size: 1.2em;
+      border: 2px solid #fff;
+      background: transparent;
+      color: #fff;
+      margin: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #fff;
+      color: #111;
+      box-shadow: 0 0 10px 2px #4caf50;
+    }
+
+    button:focus {
+      outline: none;
+      box-shadow: 0 0 8px 3px rgba(255, 255, 255, 0.6);
+    }
+
+    .selected {
+      background-color: #4caf50 !important;
+      color: #fff !important;
+      font-weight: 600;
+      border-color: #4caf50;
+      box-shadow: 0 0 10px 3px #4caf50;
+    }
+
+    .start-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 1.4em;
+      padding: 12px 32px;
+      border-radius: 30px;
+      margin: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .start-btn:hover {
+      background-color: #3ed35f;
+    }
+
+    .start-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    .game-over {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5em;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 30px 50px;
+      border-radius: 15px;
+      border: 2px solid #fff;
+      display: none;
+      z-index: 10;
+      text-align: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    .display_score h3,
+    .display_score h2,
+    .display_score span,
+    #timer {
+      font-size: 1.8em;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-container" id="game">
+    <div id="target" class="target" tabindex="0"></div>
+    <div id="gameOverText" class="game-over">🎯 Game Over!<br>Final Score: <span id="finalScore">0</span></div>
+  </div>
+
+  <div class="sidebar">
+    <div>
+      <h2>🎯 Target Practice</h2>
+      <h4>Select Difficulty</h4>
+      <div class="buttons">
+        <button id="easyBtn" onclick="selectDifficulty('easy')">EASY</button>
+        <button id="mediumBtn" onclick="selectDifficulty('medium')">MEDIUM</button>
+        <button id="hardBtn" onclick="selectDifficulty('hard')">HARD</button>
+      </div>
+      <h4>Select Duration</h4>
+      <div class="timers">
+        <button id="time10" onclick="selectDuration(10)">10s</button>
+        <button id="time15" onclick="selectDuration(15)">15s</button>
+        <button id="time30" onclick="selectDuration(30)">30s</button>
+      </div>
+      <button id="startBtn" class="start-btn" onclick="startGame()" disabled>START</button>
+    </div>
+    <div class="display_score">
+      <h3>Score: <span id="score">0</span></h3>
+      <h4 id="timer">Time: 0</h4>
+    </div>
+    <button onclick="restart()">RESTART</button>
+  </div>
+
+  <audio id="gunSound" src="shooting.mp3" preload="auto"></audio>
+
+  <script>
+    const target = document.getElementById('target');
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const finalScoreDisplay = document.getElementById('finalScore');
+    const gameOverText = document.getElementById('gameOverText');
+    const gameContainer = document.getElementById('game');
+    const startBtn = document.getElementById('startBtn');
+    const gunSound = document.getElementById('gunSound');
+
+    let score = 0;
+    let gameInterval = null;
+    let moveInterval = null;
+    let cooldown = false;
+    let timeLeft = 0;
+    let duration = null;
+    let difficultySpeed = null;
+    let selectedDifficulty = null;
+    let selectedDuration = null;
+    let gameActive = false;
+
+    const DIFFICULTY = {
+      easy: 1000,
+      medium: 700,
+      hard: 400
+    };
+
+    function selectDifficulty(mode) {
+      selectedDifficulty = mode;
+      document.getElementById('easyBtn').classList.toggle('selected', mode === 'easy');
+      document.getElementById('mediumBtn').classList.toggle('selected', mode === 'medium');
+      document.getElementById('hardBtn').classList.toggle('selected', mode === 'hard');
+      enableStartIfReady();
+    }
+
+    function selectDuration(sec) {
+      selectedDuration = sec;
+      document.getElementById('time10').classList.toggle('selected', sec === 10);
+      document.getElementById('time15').classList.toggle('selected', sec === 15);
+      document.getElementById('time30').classList.toggle('selected', sec === 30);
+      timerDisplay.textContent = `Time: ${sec}`;
+      enableStartIfReady();
+    }
+
+    function enableStartIfReady() {
+      startBtn.disabled = !(selectedDifficulty && selectedDuration);
+    }
+
+    function randomPosition() {
+      const maxX = gameContainer.clientWidth - 80;
+      const maxY = gameContainer.clientHeight - 80;
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+      target.style.left = `${x}px`;
+      target.style.top = `${y}px`;
+    }
+
+    function moveTarget() {
+      randomPosition();
+    }
+
+    function count() {
+      if (!gameActive || cooldown || timeLeft <= 0) return;
+      gunSound.currentTime = 0;
+      gunSound.play();
+      cooldown = true;
+      score++;
+      scoreDisplay.textContent = score;
+      setTimeout(() => cooldown = false, 150);
+    }
+
+    function startGame() {
+      if (!(selectedDifficulty && selectedDuration)) return;
+      difficultySpeed = DIFFICULTY[selectedDifficulty];
+      duration = selectedDuration;
+      score = 0;
+      timeLeft = duration;
+      scoreDisplay.textContent = score;
+      timerDisplay.textContent = `Time: ${timeLeft}`;
+      gameOverText.style.display = 'none';
+      gameActive = true;
+
+      clearInterval(moveInterval);
+      clearInterval(gameInterval);
+
+      moveTarget();
+      moveInterval = setInterval(moveTarget, difficultySpeed);
+
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+
+      startBtn.disabled = true;
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      clearInterval(moveInterval);
+      gameActive = false;
+      gameOverText.style.display = 'block';
+      finalScoreDisplay.textContent = score;
+    }
+
+    function restart() {
+      score = 0;
+      scoreDisplay.textContent = score;
+      timeLeft = selectedDuration || 0;
+      timerDisplay.textContent = `Time: ${timeLeft}`;
+      gameOverText.style.display = 'none';
+      clearInterval(gameInterval);
+      clearInterval(moveInterval);
+      startBtn.disabled = !(selectedDifficulty && selectedDuration);
+      gameActive = false;
+    }
+
+    target.onclick = count;
+    target.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') count();
+    });
+  </script>
+</body>
+
+</html>
