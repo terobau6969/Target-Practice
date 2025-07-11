@@ -6,7 +6,8 @@ A browser-based shooting game where players click on a moving target within a se
 
 ## 🖼️ Screenshots
 
-<img width="2141" height="1039" alt="image" src="https://github.com/user-attachments/assets/e69b0e60-2d96-4d39-a6b0-989423ce860c" />
+<img width="1906" height="921" alt="image" src="https://github.com/user-attachments/assets/a9c1a798-3fd6-4e45-ac8d-5d8e847a0ae6" />
+
 
 ---
 
